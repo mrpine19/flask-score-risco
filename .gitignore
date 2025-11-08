@@ -1,0 +1,27 @@
+# Ambientes virtuais
+.venv/
+venv/
+ENV/
+
+# Arquivos de cache e compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos do editor e do sistema
+.idea/
+.vscode/
+.DS_Store
+
+# Notebooks e datasets
+*.ipynb
+*.csv
+
+# Modelos antigos
+model_carelink.joblib
+model_carelink_v4.joblib
+
+# Arquivos de documentação que não precisam estar no deploy
+discussao_resultados_modelo_carelink.md
+README.md

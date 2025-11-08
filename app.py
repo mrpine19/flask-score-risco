@@ -1,15 +1,23 @@
 import joblib
 import pandas as pd
 from flask import Flask, request, jsonify
+import os
 
 # 1. Configuração Inicial e Carregamento do Modelo
 app = Flask(__name__)
+
+# --- Carregamento do Modelo V5 ---
+# O nome do arquivo do modelo que deve ser usado em produção.
+MODEL_FILENAME = 'model_carelink_v5.joblib'
+
 try:
-    # O pipeline completo com Scaler, Encoder e Modelo
-    pipeline_completo = joblib.load('model_carelink.joblib')
-    print("✅ Modelo 'model_carelink.joblib' carregado com sucesso.")
+    # Constrói o caminho absoluto para o arquivo do modelo.
+    # Isso torna a aplicação mais robusta, não dependendo do diretório de onde o script é executado.
+    model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), MODEL_FILENAME)
+    pipeline_completo = joblib.load(model_path)
+    print(f"✅ Modelo '{MODEL_FILENAME}' carregado com sucesso.")
 except FileNotFoundError:
-    print("❌ ERRO: Arquivo do modelo não encontrado. Verifique se ele está na mesma pasta que 'app.py'.")
+    print(f"❌ ERRO: Arquivo do modelo '{MODEL_FILENAME}' não encontrado. Verifique o caminho: {model_path}")
     pipeline_completo = None
 
 # --- Rota Principal da API ---
@@ -39,7 +47,7 @@ def predict_risk():
         # 3.2. Conversão para o Score de Risco (0-1000)
         score_risco = int(round(prob_falta[0] * 1000))
 
-        # No retorno do endpoint, adicione:
+        # Classificação do nível de risco
         if score_risco <= 300:
             nivel_risco = "BAIXO"
         elif score_risco <= 600:
@@ -60,7 +68,7 @@ def predict_risk():
 
     except Exception as e:
         # Este erro acontece se as colunas estiverem faltando ou desordenadas
-        return jsonify({'error': f'Erro de Previsão! Verifique as 9 colunas e a ordem: {e}'}), 500
+        return jsonify({'error': f'Erro de Previsão! Verifique as colunas de entrada e a ordem: {e}'}), 500
 
 if __name__ == '__main__':
     # Roda a aplicação Flask no ambiente de desenvolvimento
